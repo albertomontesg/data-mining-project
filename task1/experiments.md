@@ -63,3 +63,98 @@ b: 15	r: 15
 number of hash functions: 225
 estimated threshold: 0.8348
 0.616352201258
+
+b: 15	r: 10
+number of hash functions: 150
+estimated threshold: 0.7628
+0.140449438202
+
+b: 12	r: 20
+number of hash functions: 240
+estimated threshold: 0.8832
+0.184684684685
+
+b: 12	r: 20
+number of hash functions: 240
+estimated threshold: 0.8832
+0.642857142857
+
+b: 12	r: 25
+number of hash functions: 300
+estimated threshold: 0.9054
+0.521008403361
+
+b: 12	r: 25
+number of hash functions: 300
+estimated threshold: 0.9054
+0.783505154639
+
+b: 12	r: 25
+number of hash functions: 300
+estimated threshold: 0.9054
+0.804347826087
+
+b: 10	r: 15
+number of hash functions: 150
+estimated threshold: 0.8577
+0.661764705882
+
+b: 12	r: 20
+number of hash functions: 240
+estimated threshold: 0.8832
+0.779661016949
+
+b: 30	r: 25
+number of hash functions: 750
+estimated threshold: 0.8728
+0.777777777778
+
+b: 25	r: 30
+number of hash functions: 750
+estimated threshold: 0.8983
+0.714285714286
+
+b: 30	r: 25
+number of hash functions: 750
+estimated threshold: 0.8728
+0.760330578512
+
+b: 12	r: 25
+number of hash functions: 300
+estimated threshold: 0.9054
+0.695652173913
+
+b: 12	r: 25
+number of hash functions: 300
+estimated threshold: 0.9054
+0.735632183908
+
+b: 12	r: 20
+number of hash functions: 240
+estimated threshold: 0.8832
+0.740740740741
+
+b: 50	r: 20
+number of hash functions: 1000
+estimated threshold: 0.8223
+0.666666666667
+
+b: 25	r: 25
+number of hash functions: 625
+estimated threshold: 0.8792
+0.914285714286
+
+b: 25	r: 20
+number of hash functions: 500
+estimated threshold: 0.8513
+0.8
+
+b: 30	r: 30
+number of hash functions: 900
+estimated threshold: 0.8928
+0.879120879121
+
+b: 30	r: 25
+number of hash functions: 750
+estimated threshold: 0.8728
+0.893203883495

@@ -4,11 +4,11 @@ import numpy as np
 
 # Definition
 N = 8192 # Number of shingles
-m = 2147483647 # Number of buckets
+m = 100000 # Number of buckets
 
 # Hash functions for Signature Matrix
-b = 30
-r = 25
+b = 12
+r = 12
 print('\nb: {}\tr: {}'.format(b,r))
 print('number of hash functions: {}'.format(r*b))
 print('estimated threshold: {:.4f}'.format((1./float(b))**(1./float(r))))
@@ -19,7 +19,7 @@ B = np.random.randint(0, high=8191, size=(r*b,))
 A_s = np.random.randint(0, high=2147483647, size=(r,))
 B_s = np.random.randint(0, high=2147483647, size=(r,))
 C = 131071      # Large Prime Number
-C_s = 2147483647
+C_s = 131071
 
 # Hashing values for the use of the hash functions
 def h(i, x):
@@ -30,6 +30,24 @@ def h(i, x):
 def h_s(x):
     """ x is the column vector of length r that is required to hash """
     return np.sum((A_s * x + B_s) % C_s) % m
+
+def shingle_to_bitarray(shingle):
+    bitarray = np.full((N,), False, dtype='bool')
+    for s in shingle:
+        bitarray[s] = True
+    return bitarray
+
+def jacard_similarity_2(u, v):
+    return float(np.sum(u==v)) / u.shape[0]
+
+def jacard_similarity(u, v):
+    s1 = set(u)
+    s2 = set(v)
+    intersection_len = len(s1 & s2)
+    union_len = len(s1 | s2)
+    if intersection_len == 0:
+        return 0.
+    return float(intersection_len) / float(union_len)
 
 def mapper(key, value):
     # key: None
@@ -51,19 +69,28 @@ def mapper(key, value):
         k = '{:03d}_'.format(band+1)
         sig_hashed = h_s(sig)
         k += '{:010d}'.format(sig_hashed)
-        yield k, int(video_id[6:])
-
+        # yield k, int(video_id[6:])
+        yield k, value
 
 def reducer(key, values):
     # key: key from mapper used to aggregate
     # values: list of all value for that key
 
-    values = list(set(values))
     values.sort()
 
     if len(values) > 1:
         for k, v in itertools.combinations(values, 2):
-            yield k,v
+            k_id = int(k[6:15])
+            v_id = int(v[6:15])
+            k_lines = k.strip().split(' ')
+            k_shingle = np.array(sorted(k_lines[1:]), dtype=np.int64)
+            v_lines = v.strip().split(' ')
+            v_shingle = np.array(sorted(v_lines[1:]), dtype=np.int64)
 
-    if False:
-        yield "key", "value"  # this is how you yield a key, value pair
+            k_bits = shingle_to_bitarray(k_shingle)
+            v_bits = shingle_to_bitarray(v_shingle)
+            # yield k_id, v_id
+            if jacard_similarity(k_shingle, v_shingle) > .85:
+                yield k_id, v_id
+            # if jacard_similarity(k_bits, v_bits) > .85:
+            #     yield k_id, v_id

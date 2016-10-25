@@ -92,8 +92,9 @@ def isolated_batch_call(f, arguments):
     p = multiprocessing.Process(target=lf, args=(q, ))
     p.start()
     # Set timeout for individual mappers and reducers.
+    res = q.get()
     p.join()
-    return q.get()
+    return res
 
 
 def mapreduce(input, mapper, reducer, batch_size=50, log=False):

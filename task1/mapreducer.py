@@ -3,11 +3,12 @@ import itertools
 import numpy as np
 
 #########################################################################
-b = 15
-r = 10
+b = 3
+r = 2
 print('\nb: {}\tr: {}'.format(b,r))
 print('number of hash functions: {}'.format(r*b))
 print('estimated threshold: {:.4f}'.format((1./float(b))**(1./float(r))))
+print('P(hit) = {:.4f}'.format(1-(1-.85**r)**b))
 #########################################################################
 
 class LSHashing(object):

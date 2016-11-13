@@ -1,6 +1,9 @@
 import numpy as np
 
+SEED = 23
 LAMBDA = .01
+GAMMA = 250
+RBF_SPACE = 1000 # N components of the projection of x to rbf space
 
 class OnlineSVM(object):
 
@@ -40,9 +43,37 @@ class OnlineLogisticRegression(object):
                           1. / (np.sqrt(self.lambda_) * np.linalg.norm(self.w_, 1)))
 
 
+class RBFSampler(object):
+
+    def __init__(self, gamma, n_components, random_state=SEED):
+        self.gamma = gamma
+        self.n_components = n_components
+        self.random_state = random_state
+
+    def transform(self, X):
+        nb_features = X.shape[1]
+        np.random.seed(self.random_state)
+        self.random_weights_ = (np.sqrt(2 * self.gamma) * np.random.normal(
+            size=(nb_features, self.n_components)))
+        self.random_offset_ = np.random.uniform(0, 2*np.pi, size=self.n_components)
+
+        projection = np.dot(X, self.random_weights_)
+        projection += self.random_offset_
+        projection = np.cos(projection)
+        projection += np.sqrt(2.) / np.sqrt(self.n_components)
+        return projection
+
+
 def transform(X):
     # Make sure this function works for both 1D and 2D NumPy arrays.
-    return X
+    x_mean = X.mean(axis=1, keepdims=True)
+    x_std = X.std(axis=1, keepdims=True)
+    x_norm = (X-x_mean) / x_std
+    return x_norm
+    # rbfsampler = RBFSampler(GAMMA, RBF_SPACE, SEED)
+    # x_proj = rbfsampler.transform(x_norm)
+    #
+    # return x_proj
 
 def read_value(value):
     """ Returns from the value given to the mapper as input, return the array representing the features 'X' and the label 'Y' """
@@ -62,7 +93,8 @@ def mapper(key, value):
     assert key is None, 'key is not None'
 
     X, Y = read_value(value)
-    svm = OnlineLogisticRegression(LAMBDA)
+    X = transform(X)
+    svm = OnlineSVM(LAMBDA)
     svm.fit(X,Y)
 
     print('Finish one mapper')

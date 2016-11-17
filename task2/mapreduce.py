@@ -1,149 +1,152 @@
+import logging
+
 import numpy as np
 
-LAMBDA = .01
+logger = logging.getLogger(__name__)
+
+ITERS = 10
+LAMBDA = .000001
+LOSS = 'hinge'
+REGULARIZATION = 'l2'
+AVERAGING = False
+
+RBF = True
+GAMMA = .001
+RBF_SPACE = 100000
+
+print('\n'+'#'*20)
+print('\nIterations: {}'.format(ITERS))
+print('lambda: {}'.format(LAMBDA))
+print('Loss: {}'.format(LOSS))
+print('Regularization: {}'.format(REGULARIZATION))
+print('Averaging: {}'.format(AVERAGING))
+if RBF:
+    print('Gamma: {}'.format(GAMMA))
+    print('RBF space: {}'.format(RBF_SPACE))
+print('')
 
 np.random.seed(23)
 
-def _dot(*args):
-    """ Perform the dot product to the given arguments in order.
-    It avoids writing long chains of dot products """
-    assert len(args) >= 2, 'Not enough arguments'
-    out = np.dot(args[0], args[1])
-    for a in args[2:]:
-        out = np.dot(out, a)
-    return out
+class HingeLoss(object):
+    def value(self, X, y, w):
+        return np.fmax(np.zeros(X.shape[0],), 1-y*w.dot(X.T))
+
+    def grad(self, X, y, w):
+        if y*w.T.dot(X) < 1:
+            grad_w = -y * X
+        else:
+            grad_w = np.zeros(w.shape)
+        return grad_w
+
+class LogLoss(object):
+    def value(self, X, y, w):
+        return np.log(1 + np.exp(-y*w.T.dot(X)))
+
+    def grad(self, X, y, w):
+        return -y*X / (1 + np.exp(y*w.T.dot(X)))
 
 
-def _hinge_loss_and_gradient(X, y, w):
-    loss = np.fmax(np.zeros(X.shape[0],), 1-y*_dot(w, X.T))
-    grad_W = y.reshape(-1, 1) * X
-    grad_W[loss==0] = 0
-    return loss, grad_W
+class SGDClassifier(object):
+    loss_functions = {
+        'hinge': HingeLoss(),
+        'log': LogLoss()
+    }
 
-
-class Trainer(object):
-
-    def __init__(self, n_iterations, batch_size, lambda_):
+    def __init__(self, n_iterations, lambda_, loss='log', penalty='l2', averaging=False):
+        """ This class is a SGD Classifier which uses the given loss which can be:
+        * hinge: Hinge Loss
+        * log: logistic regression loss
+        It also uses l2 or l1 penalty to the weight vector depending on the specification. """
         self.n_iterations = n_iterations
-        self.batch_size = batch_size
         self.lambda_ = lambda_
+        assert loss in ('hinge', 'log'), 'Invalid given loss'
+        self.loss = self.loss_functions[loss]
+        penalty = penalty.lower()
+        assert penalty in ('none', 'l2', 'l1')
+        self.penalty = penalty
+        self.averaging = averaging
 
-    def _batch_iter(self, nb_samples):
-        initial_pointer = 0
-        for i in range(self.n_iterations):
-            if initial_pointer == 0:
-                # Shuffle X at the begining
-                idx = np.random.permutation(nb_samples)
-
-            end_pointer = min(initial_pointer+self.batch_size, nb_samples)
-
-            yield i, idx[initial_pointer:end_pointer]
-            initial_pointer = end_pointer % nb_samples
+    def _apply_regularization(self, w):
+        if self.penalty == 'none':
+            return 1.
+        elif self.penalty == 'l1':
+            return min(1.,
+                       1. / (np.sqrt(self.lambda_) * np.linalg.norm(w, 1)))
+        elif self.penalty == 'l2':
+            return min(1.,
+                       1. / (np.sqrt(self.lambda_) * np.linalg.norm(w, 2)))
 
     def fit(self, X, y):
-        assert len(X.shape) == 2, 'X shape invalid'
-        self.w_ = np.empty((X.shape[1],))
-
-        self._init_training(self.w_)
 
         nb_samples = X.shape[0]
+        nb_features = X.shape[1]
+        assert nb_samples == y.shape[0]
 
-        for t, idx in self._batch_iter(nb_samples):
-            X_ = X[idx]
+        # Initialize weight vector to zero
+        w_ = np.zeros((nb_features,), dtype='float')
+        if self.averaging:
+            w_avg = np.zeros((self.n_iterations*nb_samples, nb_features))
+            a = 0
+
+        for i in range(self.n_iterations):
+            # Shuffle data
+            idx = np.random.permutation(nb_samples)
+            X_ = X[idx,:]
             y_ = y[idx]
-            self._train_iter(t, self.w_, X_, y_)
-            self.w_ *= min(1.,
-                     1. / (np.sqrt(self.lambda_) * np.linalg.norm(self.w_, 2)))
+
+            for t in range(nb_samples):
+                nhu = nhu = 1. / np.sqrt(t+1)
+                w_ -= nhu * self.loss.grad(X_[t,:], y_[t], w_)
+                # Scalar factor due to penalty
+                w_ *= self._apply_regularization(w_)
+
+                if self.averaging:
+                    w_avg[a,:] = w_
+                    a += 1
+
+            # print('Done iteration {}'.format(i+1))
+        if self.averaging:
+            w_ = w_avg.mean(axis=0)
 
 
-class PEGASOS(Trainer):
+        self.w_ = w_
 
-    def __init__(self, lambda_, n_iterations, batch_size=32):
-        super(PEGASOS, self).__init__(n_iterations, batch_size, lambda_)
+class RBFSampler(object):
 
-    def _init_training(self, w):
-        w[:] = 0.
+    def __init__(self, gamma, n_components, seed):
+        self.gamma = gamma
+        self.n_components = n_components
+        self.seed = seed
 
-    def _train_iter(self, t, w, X, y):
-        nhu = 1. / ((t+1) * self.lambda_)
+    def transform(self, X):
+        n_features = X.shape[1]
 
-        loss, grad = _hinge_loss_and_gradient(X, y, w)
-        grad_W = self.lambda_ * w - nhu / X.shape[0] * np.sum(grad[loss > 0], axis=0)
-        w -= nhu * grad_W
+        np.random.seed(self.seed)
 
-class SGD(Trainer):
+        random_weights = (np.sqrt(2 * self.gamma) * np.random.normal(size=(n_features, self.n_components)))
+        random_offset = np.random.uniform(0, 2 * np.pi, size=self.n_components)
 
-    def __init__(self, n_iterations, batch_size=1, lambda_=LAMBDA):
-        super(SGD, self).__init__(n_iterations, batch_size, lambda_)
-
-    def _init_training(self, w):
-        w[:] = 0.
-
-    def _train_iter(self, t, w, X, y):
-        nhu = 1. / np.sqrt(t+1)
-
-        _, grad_W = _hinge_loss_and_gradient(X, y, w)
-
-        w += nhu * np.mean(grad_W, axis=0)
-
-class SGDMomentum(Trainer):
-
-    def __init__(self, n_iterations, batch_size=1, lambda_=LAMBDA, momentum=.9):
-        self.momentum = momentum
-        super(SGDMomentum, self).__init__(n_iterations, batch_size, lambda_)
-
-    def _init_training(self, w):
-        w[:] = 0.
-        self.g = np.zeros(w.shape)
-
-    def _train_iter(self, t, w, X, y):
-        nhu = 1. / np.sqrt(t+1)
-
-        _, grad_W = _hinge_loss_and_gradient(X, y, w)
-
-        self.g = self.g*self.momentum + (1-self.momentum)*np.mean(grad_W, axis=0)
-
-        w += nhu * self.g
-
-class Adam(Trainer):
-
-    def __init__(self, n_iterations, batch_size=32, lambda_=LAMBDA, learning_rate=0.01, beta_1=.9, beta_2=.999, epsilon=1e-8):
-        self.learning_rate = learning_rate
-        self.beta_1 = beta_1
-        self.beta_2 = beta_2
-        self.epsilon = epsilon
-        super(Adam, self).__init__(n_iterations, batch_size, lambda_)
-
-    def _init_training(self, w):
-        w[:] = 0.
-        self.m = np.zeros(w.shape, dtype='float')
-        self.v = np.zeros(w.shape, dtype='float')
-
-    def _train_iter(self, t, w, X, y):
-        _, grad_W = _hinge_loss_and_gradient(X, y, w)
-        grad_W = grad_W.mean(axis=0)
-        t += 1
-        lr_t = self.learning_rate * np.sqrt(1 - self.beta_2**t) / (1 - self.beta_1**t)
-
-        self.m = self.beta_1*self.m + (1-self.beta_1) * grad_W
-        self.v = self.beta_2*self.v + (1-self.beta_2) * grad_W**2
-
-        w += lr_t * self.m / (np.sqrt(self.v) + self.epsilon)
+        projection = X.dot(random_weights)
+        projection += random_offset
+        projection = np.cos(projection)
+        projection *= np.sqrt(2) / np.sqrt(self.n_components)
+        return projection
 
 
 def transform(X):
     # Make sure this function works for both 1D and 2D NumPy arrays.
 
     # Extend the features with the second power of each one
-    X = np.hstack((X, X**2,))#, np.absolute(X), np.log(X+1)))
-    assert X.shape[1] == 800
+    # X = np.hstack((X, np.log(np.absolute(X) + 1), X**2, np.absolute(X), np.sqrt(np.absolute(X))))
+    # assert X.shape[1] == 800
 
-
-    # x_mean = X.mean(keepdims=True)
-    # x_std = X.std(keepdims=True)
     x_mean = X.mean(axis=0, keepdims=True)
     x_std = X.std(axis=0, keepdims=True)
     x_norm = (X-x_mean) / x_std
+
+    if RBF:
+        rbf_sampler = RBFSampler(GAMMA, RBF_SPACE, 23)
+        x_norm = rbf_sampler.transform(x_norm)
     return x_norm
 
 def read_value(value):
@@ -165,11 +168,11 @@ def mapper(key, value):
 
     X, Y = read_value(value)
     X = transform(X)
-    #svm = SGD(X.shape[0], batch_size=1)
-    svm = Adam(1000)
-    svm.fit(X,Y)
+    svm = SGDClassifier(n_iterations=ITERS, lambda_=LAMBDA, loss=LOSS, penalty=REGULARIZATION,
+        averaging=AVERAGING)
+    svm.fit(X, Y)
 
-    print('Finish one mapper')
+    logger.info('Finish mapper')
     yield 'w', svm.w_
 
 

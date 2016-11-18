@@ -10,9 +10,9 @@ LOSS = 'hinge'
 REGULARIZATION = 'l2'
 AVERAGING = False
 
-RBF = True
+RBF = False
 GAMMA = .001
-RBF_SPACE = 100000
+RBF_SPACE = 10000
 
 print('\n'+'#'*20)
 print('\nIterations: {}'.format(ITERS))
@@ -52,7 +52,7 @@ class SGDClassifier(object):
         'log': LogLoss()
     }
 
-    def __init__(self, n_iterations, lambda_, loss='log', penalty='l2', averaging=False):
+    def __init__(self, n_iterations, lambda_, loss='log', penalty='l2', averaging=False, batch=1):
         """ This class is a SGD Classifier which uses the given loss which can be:
         * hinge: Hinge Loss
         * log: logistic regression loss
@@ -88,14 +88,14 @@ class SGDClassifier(object):
             w_avg = np.zeros((self.n_iterations*nb_samples, nb_features))
             a = 0
 
-        for i in range(self.n_iterations):
+        for _ in range(self.n_iterations):
             # Shuffle data
             idx = np.random.permutation(nb_samples)
             X_ = X[idx,:]
             y_ = y[idx]
 
             for t in range(nb_samples):
-                nhu = nhu = 1. / np.sqrt(t+1)
+                nhu = 1. / np.sqrt(nb_samples)
                 w_ -= nhu * self.loss.grad(X_[t,:], y_[t], w_)
                 # Scalar factor due to penalty
                 w_ *= self._apply_regularization(w_)
@@ -137,7 +137,7 @@ def transform(X):
     # Make sure this function works for both 1D and 2D NumPy arrays.
 
     # Extend the features with the second power of each one
-    # X = np.hstack((X, np.log(np.absolute(X) + 1), X**2, np.absolute(X), np.sqrt(np.absolute(X))))
+    X = np.hstack((X, np.log(np.absolute(X) + 1), X**2, np.absolute(X), np.sqrt(np.absolute(X))))
     # assert X.shape[1] == 800
 
     x_mean = X.mean(axis=0, keepdims=True)

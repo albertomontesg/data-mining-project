@@ -1,3 +1,213 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:7809f47317ef939038a6fb0e319c5261dc758c7b77e3f6a950eaf031394ab63c
-size 3733
+Iterations: 10
+lambda: 0.01
+Loss: hinge
+Regularization: l2
+Averaging: False
+0.81075
+
+Iterations: 10
+lambda: 0.01
+Loss: hinge
+Regularization: l2
+Averaging: True
+0.80545
+
+####################
+
+Iterations: 10
+lambda: 0.01
+Loss: hinge
+Regularization: l1
+Averaging: False
+0.72555
+
+####################
+
+Iterations: 10
+lambda: 0.001
+Loss: hinge
+Regularization: l2
+Averaging: False
+
+0.81275
+
+####################
+
+Iterations: 10
+lambda: 0.0001
+Loss: hinge
+Regularization: l2
+Averaging: False
+
+0.81545
+
+####################
+
+Iterations: 10
+lambda: 1e-05
+Loss: hinge
+Regularization: l2
+Averaging: False
+
+0.81635
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+
+0.81635
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l1
+Averaging: False
+
+0.8144
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+
+0.81285
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+
+0.8089
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+
+0.81635
+
+####################
+
+Iterations: 10
+lambda: 0.01
+Loss: log
+Regularization: l2
+Averaging: False
+0.81055
+
+####################
+
+Iterations: 10
+lambda: 0.01
+Loss: log
+Regularization: l1
+Averaging: False
+0.74405
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+
+0.81635
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 1
+RBF space: 2000
+
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 1
+RBF space: 2000
+
+0.4974
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 100
+RBF space: 2000
+
+0.49585
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 0.01
+RBF space: 2000
+
+0.71265
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 0.001
+RBF space: 2000
+
+0.7971
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 0.0001
+RBF space: 2000
+
+0.7653
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 0.001
+RBF space: 10000
+
+0.7989

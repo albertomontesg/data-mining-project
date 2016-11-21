@@ -211,3 +211,431 @@ Gamma: 0.001
 RBF space: 10000
 
 0.7989
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 0.001
+RBF space: 2000
+
+0.77395
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 0.001
+RBF space: 2000
+
+0.77395
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 0.001
+RBF space: 2000
+
+0.78115
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 0.001
+RBF space: 10000
+0.79295
+
+####################
+
+Iterations: 10
+lambda: 0.0001
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 0.001
+RBF space: 2000
+
+0.78115
+
+####################
+
+Iterations: 10
+lambda: 0.0001
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 0.001
+RBF space: 2000
+
+0.77395
+
+####################
+
+Iterations: 10
+lambda: 0.0001
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 0.001
+RBF space: 2000
+
+0.787
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 0.001
+RBF space: 2000
+
+0.787
+
+####################
+
+Without normalizing features neither before or after sampling
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 0.001
+RBF space: 2000
+0.50105
+
+####################
+
+Normalizing features after RBF sampling
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 0.001
+RBF space: 2000
+0.7796
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 0.01
+RBF space: 2000
+
+0.7858
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 0.1
+RBF space: 2000
+
+0.79465
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 1
+RBF space: 2000
+
+0.805
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 10
+RBF space: 2000
+
+0.81085
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 100
+RBF space: 2000
+
+0.81155
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 1000
+RBF space: 2000
+
+0.72165
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 100
+RBF space: 1000
+
+0.8064
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 100
+RBF space: 10000
+
+0.82235
+
+####################
+
+Iterations: 10
+lambda: 0.0001
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 100
+RBF space: 10000
+
+0.82235
+
+####################
+
+Iterations: 10
+lambda: 1e-07
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 100
+RBF space: 10000
+
+0.82235
+
+####################
+
+Iterations: 10
+lambda: 0.1
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 100
+RBF space: 10000
+
+0.7642
+
+####################
+
+Iterations: 10
+lambda: 0.0001
+Loss: log
+Regularization: l2
+Averaging: False
+Gamma: 100
+RBF space: 10000
+
+0.823
+
+####################
+
+Iterations: 10
+lambda: 0.0001
+Loss: log
+Regularization: l1
+Averaging: False
+Gamma: 100
+RBF space: 10000
+
+0.69415
+
+####################
+
+Iterations: 10
+lambda: 0.001
+Loss: log
+Regularization: l1
+Averaging: False
+Gamma: 100
+RBF space: 10000
+
+0.67895
+
+####################
+
+Iterations: 10
+lambda: 1e-06
+Loss: log
+Regularization: l1
+Averaging: False
+Gamma: 100
+RBF space: 10000
+
+0.7995
+
+####################
+
+Iterations: 10
+lambda: 1e-07
+Loss: log
+Regularization: l1
+Averaging: False
+Gamma: 100
+RBF space: 10000
+
+0.81625
+
+####################
+
+Iterations: 10
+lambda: 1e-08
+Loss: log
+Regularization: l1
+Averaging: False
+Gamma: 100
+RBF space: 10000
+
+0.823
+
+####################
+
+Iterations: 10
+lambda: 0.0001
+Loss: log
+Regularization: l2
+Averaging: False
+Gamma: 10
+RBF space: 10000
+
+####################
+
+Iterations: 10
+lambda: 1e-05
+Loss: log
+Regularization: l2
+Averaging: False
+Gamma: 10
+RBF space: 10000
+
+
+####################
+
+Iterations: 10
+lambda: 1e-05
+Loss: log
+Regularization: l2
+Averaging: False
+Gamma: 1000
+RBF space: 10000
+
+0.76375
+
+####################
+
+Iterations: 10
+lambda: 0.0001
+Loss: log
+Regularization: l2
+Averaging: False
+Gamma: 100
+RBF space: 10000
+
+0.823
+
+####################
+
+Iterations: 10
+lambda: 0.0001
+Loss: log
+Regularization: l2
+Averaging: False
+Gamma: 100
+RBF space: 5000
+
+0.81965
+
+####################
+
+Iterations: 10
+lambda: 0.0001
+Loss: log
+Regularization: l2
+Averaging: False
+Gamma: 100
+RBF space: 1000
+
+0.8052
+
+####################
+
+Iterations: 10
+lambda: 0.0001
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 100
+RBF space: 1000
+
+0.8064
+
+####################
+
+Iterations: 10
+lambda: 0.0001
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 100
+RBF space: 2000
+
+0.81155
+
+####################
+
+Iterations: 1
+lambda: 0.0001
+Loss: hinge
+Regularization: l2
+Averaging: False
+Gamma: 100
+RBF space: 5000
+
+0.8111

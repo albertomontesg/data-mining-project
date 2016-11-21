@@ -4,15 +4,15 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-ITERS = 10
-LAMBDA = .000001
+ITERS = 1
+LAMBDA = .0001
 LOSS = 'hinge'
 REGULARIZATION = 'l2'
 AVERAGING = False
 
-RBF = False
-GAMMA = .001
-RBF_SPACE = 10000
+RBF = True
+GAMMA = 100
+RBF_SPACE = 5000
 
 print('\n'+'#'*20)
 print('\nIterations: {}'.format(ITERS))
@@ -95,7 +95,7 @@ class SGDClassifier(object):
             y_ = y[idx]
 
             for t in range(nb_samples):
-                nhu = 1. / np.sqrt(nb_samples)
+                nhu = 1. / np.sqrt(t+1)
                 w_ -= nhu * self.loss.grad(X_[t,:], y_[t], w_)
                 # Scalar factor due to penalty
                 w_ *= self._apply_regularization(w_)
@@ -137,16 +137,16 @@ def transform(X):
     # Make sure this function works for both 1D and 2D NumPy arrays.
 
     # Extend the features with the second power of each one
-    X = np.hstack((X, np.log(np.absolute(X) + 1), X**2, np.absolute(X), np.sqrt(np.absolute(X))))
-    # assert X.shape[1] == 800
+    if not RBF:
+        X = np.hstack((X, np.log(np.absolute(X) + 1), X**2, np.absolute(X), np.sqrt(np.absolute(X))))
+    else:
+        rbf_sampler = RBFSampler(GAMMA, RBF_SPACE, 23)
+        X = rbf_sampler.transform(X)
 
     x_mean = X.mean(axis=0, keepdims=True)
     x_std = X.std(axis=0, keepdims=True)
     x_norm = (X-x_mean) / x_std
 
-    if RBF:
-        rbf_sampler = RBFSampler(GAMMA, RBF_SPACE, 23)
-        x_norm = rbf_sampler.transform(x_norm)
     return x_norm
 
 def read_value(value):

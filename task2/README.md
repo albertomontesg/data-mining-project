@@ -38,3 +38,13 @@ Your grade on this task depends on the solution and the description that you han
 For this task, each submission will be evaluated on two datasets: a public data set for which you will see the score in the leaderboard and a private data set for which the score is kept private until hand in. Both the public and the private score of the handed in submission are used in the final grading.
 
 ## Description of the solution
+
+The proposed solution Large-Scale Image Classification using parallel Stochastic Gradient Descent with a Map Reduce implementation.
+
+In the given solution, it has been implemented a Stochastic Gradient Descent classifier, which the loss function and the regularization (as well as the regularization value) can be given, and perform a fitting during the specified epochs to learn the dataset classification.
+
+The loss used by the classifier is the Hinge loss and the regularization step is not applied as it doesn't present improvement. Also the training is done during 10 epochs with a constant learning rate which has been specified to 'lr=sqrt(nb_samples)'.
+
+Finally, the part that helped to outperform with the final score is the transformation of the input samples. This samples has been extended performing some operations and at the end also, a 1 has been added at the end of the sample to add a bias value at the weight vector of the classifier. The final sample vector looked like this (notice that [] mean concatenation): X' = [X, X^2, log(|X|+1), sqrt(|X|), |X|]
+
+Exploiting the MapReduce paradigm, at each mapper a classifier has been trained with the given samples, and when finish, the mapper return the weight vector computer by the classifier. The reducer only does the simple operation of stacking all the weight vector from all the mappers and compute the mean along them to obtain an unique weight vector.

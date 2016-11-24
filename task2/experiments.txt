@@ -639,3 +639,47 @@ Gamma: 100
 RBF space: 5000
 
 0.8111
+
+####################
+
+Iterations: 10
+lambda: 0.0001
+Loss: hinge
+Regularization: l2
+Averaging: False
+
+0.81545
+
+####################
+
+Added a bias term at the features
+Iterations: 10
+lambda: 0.0001
+Loss: hinge
+Regularization: l2
+Averaging: False
+
+0.81485
+
+####################
+
+Iterations: 10
+lambda: 0.0001
+Loss: hinge
+Regularization: l2
+Averaging: False
+
+
+####################
+
+Iterations:	10
+lambda:		0.001
+Loss:		hinge
+Regularization: none
+Features extension:
+X^2:		True
+log(|X|+1):	True
+sqrt(|X|):	True
+|X|:		True
+
+0.81765

@@ -1,3 +1,8 @@
+"""
+Function to know the sparsity of the data and know if it is necessary to use and adaptative gradient
+descent method as AdaGrad.
+"""
+
 import numpy as np
 
 with open('data/handout_train.txt', 'r') as f:

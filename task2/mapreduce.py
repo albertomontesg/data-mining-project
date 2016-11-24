@@ -4,30 +4,32 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-ITERS = 1
-LAMBDA = .0001
+ITERS = 10
+LAMBDA = .001
 LOSS = 'hinge'
-REGULARIZATION = 'l2'
-AVERAGING = False
-
-RBF = True
-GAMMA = 100
-RBF_SPACE = 5000
+REGULARIZATION = 'none'
+EXTEND_PWR_2 = True
+EXTEND_LOG = True
+EXTEND_SQRT = True
+EXTEND_ABS = True
 
 print('\n'+'#'*20)
-print('\nIterations: {}'.format(ITERS))
-print('lambda: {}'.format(LAMBDA))
-print('Loss: {}'.format(LOSS))
+print('\nIterations:\t{}'.format(ITERS))
+print('lambda:\t\t{}'.format(LAMBDA))
+print('Loss:\t\t{}'.format(LOSS))
 print('Regularization: {}'.format(REGULARIZATION))
-print('Averaging: {}'.format(AVERAGING))
-if RBF:
-    print('Gamma: {}'.format(GAMMA))
-    print('RBF space: {}'.format(RBF_SPACE))
+print('Features extension:')
+print('X^2:\t\t{}'.format(EXTEND_PWR_2))
+print('log(|X|+1):\t{}'.format(EXTEND_LOG))
+print('sqrt(|X|):\t{}'.format(EXTEND_SQRT))
+print('|X|:\t\t{}'.format(EXTEND_ABS))
+
 print('')
 
 np.random.seed(23)
 
 class HingeLoss(object):
+    """ Compute the value and gradient of the Hinge loss. """
     def value(self, X, y, w):
         return np.fmax(np.zeros(X.shape[0],), 1-y*w.dot(X.T))
 
@@ -39,6 +41,7 @@ class HingeLoss(object):
         return grad_w
 
 class LogLoss(object):
+    """ Compute the value and gradient of the Log loss. """
     def value(self, X, y, w):
         return np.log(1 + np.exp(-y*w.T.dot(X)))
 
@@ -52,7 +55,7 @@ class SGDClassifier(object):
         'log': LogLoss()
     }
 
-    def __init__(self, n_iterations, lambda_, loss='log', penalty='l2', averaging=False, batch=1):
+    def __init__(self, n_iterations, lambda_, loss='log', penalty='l2'):
         """ This class is a SGD Classifier which uses the given loss which can be:
         * hinge: Hinge Loss
         * log: logistic regression loss
@@ -64,9 +67,10 @@ class SGDClassifier(object):
         penalty = penalty.lower()
         assert penalty in ('none', 'l2', 'l1')
         self.penalty = penalty
-        self.averaging = averaging
 
     def _apply_regularization(self, w):
+        """ Compute the factor required to regularize the weight vector given this and the
+        regularization desired. """
         if self.penalty == 'none':
             return 1.
         elif self.penalty == 'l1':
@@ -77,16 +81,13 @@ class SGDClassifier(object):
                        1. / (np.sqrt(self.lambda_) * np.linalg.norm(w, 2)))
 
     def fit(self, X, y):
-
+        """ Fit the SGDClassifier finding the best weight vector for the given dataset (X, y). """
         nb_samples = X.shape[0]
         nb_features = X.shape[1]
         assert nb_samples == y.shape[0]
 
         # Initialize weight vector to zero
         w_ = np.zeros((nb_features,), dtype='float')
-        if self.averaging:
-            w_avg = np.zeros((self.n_iterations*nb_samples, nb_features))
-            a = 0
 
         for _ in range(self.n_iterations):
             # Shuffle data
@@ -95,59 +96,36 @@ class SGDClassifier(object):
             y_ = y[idx]
 
             for t in range(nb_samples):
-                nhu = 1. / np.sqrt(t+1)
+                nhu = 1. / np.sqrt(nb_samples)
                 w_ -= nhu * self.loss.grad(X_[t,:], y_[t], w_)
                 # Scalar factor due to penalty
                 w_ *= self._apply_regularization(w_)
 
-                if self.averaging:
-                    w_avg[a,:] = w_
-                    a += 1
-
-            # print('Done iteration {}'.format(i+1))
-        if self.averaging:
-            w_ = w_avg.mean(axis=0)
-
-
         self.w_ = w_
-
-class RBFSampler(object):
-
-    def __init__(self, gamma, n_components, seed):
-        self.gamma = gamma
-        self.n_components = n_components
-        self.seed = seed
-
-    def transform(self, X):
-        n_features = X.shape[1]
-
-        np.random.seed(self.seed)
-
-        random_weights = (np.sqrt(2 * self.gamma) * np.random.normal(size=(n_features, self.n_components)))
-        random_offset = np.random.uniform(0, 2 * np.pi, size=self.n_components)
-
-        projection = X.dot(random_weights)
-        projection += random_offset
-        projection = np.cos(projection)
-        projection *= np.sqrt(2) / np.sqrt(self.n_components)
-        return projection
 
 
 def transform(X):
-    # Make sure this function works for both 1D and 2D NumPy arrays.
 
-    # Extend the features with the second power of each one
-    if not RBF:
-        X = np.hstack((X, np.log(np.absolute(X) + 1), X**2, np.absolute(X), np.sqrt(np.absolute(X))))
-    else:
-        rbf_sampler = RBFSampler(GAMMA, RBF_SPACE, 23)
-        X = rbf_sampler.transform(X)
+    # Extend the features with the some transformations of the given data
+    X_ = X
+    if EXTEND_LOG:
+        X_ = np.hstack([X_, np.log(np.absolute(X) + 1)])
+    if EXTEND_PWR_2:
+        X_ = np.hstack([X_, X**2])
+    if EXTEND_ABS:
+        X_ = np.hstack([X_, np.absolute(X)])
+    if EXTEND_SQRT:
+        X_ = np.hstack([X_, np.sqrt(np.absolute(X))])
 
-    x_mean = X.mean(axis=0, keepdims=True)
-    x_std = X.std(axis=0, keepdims=True)
-    x_norm = (X-x_mean) / x_std
+    # Make the data to have 0 mean and 1 std
+    x_mean = X_.mean(axis=0, keepdims=True)
+    x_std = X_.std(axis=0, keepdims=True)
+    x = (X_-x_mean) / x_std
 
-    return x_norm
+    # Add column of ones for the bias value of the weight vector
+    x = np.hstack([x, np.ones((x.shape[0], 1))])
+
+    return x
 
 def read_value(value):
     """ Returns from the value given to the mapper as input, return the array representing the features 'X' and the label 'Y' """
@@ -168,8 +146,7 @@ def mapper(key, value):
 
     X, Y = read_value(value)
     X = transform(X)
-    svm = SGDClassifier(n_iterations=ITERS, lambda_=LAMBDA, loss=LOSS, penalty=REGULARIZATION,
-        averaging=AVERAGING)
+    svm = SGDClassifier(n_iterations=ITERS, lambda_=LAMBDA, loss=LOSS, penalty=REGULARIZATION)
     svm.fit(X, Y)
 
     logger.info('Finish mapper')
@@ -182,6 +159,7 @@ def reducer(key, values):
     # Note that we do *not* output a (key, value) pair here.
     assert key == 'w', 'Key is has not the correct value'
 
+    # Stack all the weight vectors and compute the mean along all the mapper's solution
     w = np.vstack(values)
-    w = np.mean(w,axis=0)
+    w = np.mean(w, axis=0)
     yield w

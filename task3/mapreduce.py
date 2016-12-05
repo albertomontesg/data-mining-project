@@ -6,7 +6,8 @@ logger = logging.getLogger(__name__)
 
 DEBUG = 2
 N_CLUSTERS = 200
-N_INIT = 3
+N_INIT = 5
+K = 500 # Coresets
 
 np.random.seed(23)
 
@@ -191,14 +192,14 @@ class KMeansCoresets(object):
                 for j in range(n_samples):
                     d_2 = np.sum((centers-X[j,:])**2, axis=1)
                     labels[j] = np.argmin(d_2)
-                    L += w[i] * np.min(d_2)
-                L /= n_samples
+                    L += w[i,0] * np.min(d_2)
+                L /= np.sum(w)
 
                 # Update
                 for l in range(self.n_clusters):
                     P = X[labels==l,:]
-                    pw = w[labels==l]
-                    centers[l] = np.mean(pw * P, axis=0)
+                    pw = w[labels==l,:]
+                    centers[l] = np.sum(pw * P, axis=0) / np.sum(pw)
 
                 # Check convergence
                 if abs(prev_L - L) < self.tol:
@@ -228,21 +229,35 @@ def mapper(key, value):
     # value: one line of input file
     assert key is None, 'key is not None'
 
-    print(value.shape)
-
     # To compute the coreset first uniformly sample over all the points.
     # Then compute the weight of each sample as the number of samples closer to each one
     X = value
-    idx = np.random.permutation(X.shape[0])
-    C = X[idx[:1000]]
+    nb_samples, dimensions = X.shape[0], X.shape[1]
 
-    labels = np.zeros((C.shape[0],))
-    for i in range(X.shape[0]):
-        d = euclidean_distance(C, X[i])
-        labels[np.argmin(d)] += 1
+    # Sample points for coresets
+    indexes = np.arange(nb_samples)
+    p = np.ones((nb_samples))
+    p /= p.sum()
+    c = np.zeros((K, dimensions)) # Store the centers of the coresets
+    d = np.zeros((nb_samples, K))
+    for i in range(K):
+        idx = np.random.choice(indexes, p=p)
+        c[i] = X[idx]
+
+        temp = euclidean_distance(X, c[i])
+        d[:,i] = temp
+
+        p = d[:,:i+1].sum(axis=1) / d[:,:i+1].sum()
+
+    w = np.zeros((K, 1))
+    for i in range(nb_samples):
+        d = euclidean_distance(c, X[i])
+        w[np.argmin(d), 0] += 1
+
+    C = np.hstack([w, c])
 
     if DEBUG >= 1:
-        logger.info('Finish mapper')
+        logger.info('Finished mapper')
     yield 'w', C
 
 
@@ -252,9 +267,8 @@ def reducer(key, values):
     # Note that we do *not* output a (key, value) pair here.
     assert key == 'w', 'Key is has not the correct value'
 
-    print(values.shape)
-    kmeans = KMeans(n_clusters=N_CLUSTERS, n_init=N_INIT)
-    kmeans.fit(values)
-
+    w, x = values[:,0].reshape(-1, 1), values[:,1:]
+    kmeans = KMeansCoresets(n_clusters=N_CLUSTERS, n_init=N_INIT)
+    kmeans.fit(x, w)
 
     yield kmeans.cluster_centers_

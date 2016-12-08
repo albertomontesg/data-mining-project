@@ -1,0 +1,148 @@
+####################
+Number of clusters:		200
+Number of initializations:	5
+Number of coresets:		200
+
+7.91126041518
+####################
+Number of clusters:			200
+Number of initializations:	5
+Number of coresets:			200
+
+7.91126041518
+####################
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			200
+
+7.93597682085
+
+####################
+Number of clusters:			200
+Number of initializations:	5
+Number of coresets:			200
+
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	5
+Number of coresets:			200
+
+8.0038893777
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	5
+Number of coresets:			200
+
+8.0038893777
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	5
+Number of coresets:			200
+
+8.0038893777
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	5
+Number of coresets:			300
+
+7.90489000478
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	5
+Number of coresets:			200
+
+8.0038893777
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	5
+Number of coresets:			200
+
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	5
+Number of coresets:			200
+
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	5
+Number of coresets:			200
+
+8.0038893777
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	5
+Number of coresets:			200
+
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	5
+Number of coresets:			200
+
+8.0038893777
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	5
+Number of coresets:			200
+
+8.0038893777
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	5
+Number of coresets:			300
+
+7.93568357128
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	5
+Number of coresets:			400
+
+7.51222884552
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	5
+Number of coresets:			400
+
+7.51222884552
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	5
+Number of coresets:			400
+
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	5
+Number of coresets:			400
+
+7.1826452214

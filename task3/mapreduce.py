@@ -6,8 +6,13 @@ logger = logging.getLogger(__name__)
 
 DEBUG = 2
 N_CLUSTERS = 200
-N_INIT = 5
-K = 500 # Coresets
+N_INIT = 10
+N_CORESETS = 400
+
+print('\n' + '#'*40 + '\n')
+print('Number of clusters:\t\t\t{}'.format(N_CLUSTERS))
+print('Number of initializations:\t{}'.format(N_INIT))
+print('Number of coresets:\t\t\t{}\n'.format(N_CORESETS))
 
 np.random.seed(23)
 
@@ -129,41 +134,10 @@ class KMeansCoresets(object):
         self.tol = tol
 
     def _kmeans_pp_init(self, X):
-        """ k-means++ algorithm for initialize centers """
-        # Centers container
-        centers = np.zeros((self.n_clusters, X.shape[-1]))
-        # Choose the first center
-        centers[0,:] = X[np.random.randint(X.shape[0]),:]
-
-        n_local_trials = 2*int(np.log(self.n_clusters))
-
-        closest_dist_sq = np.sum((X-centers[0])**2, axis=1)
-        current_pot = closest_dist_sq.sum()
-
-        for c in range(self.n_clusters - 1):
-            rand_vals = np.random.random_sample(n_local_trials) * current_pot
-            candidate_ids = np.searchsorted(closest_dist_sq.cumsum(), rand_vals)
-
-            distance_to_candidates = euclidean_distance(X[candidate_ids], X)
-            best_candidate = None
-            best_pot = None
-            best_dist_sq = None
-            for trial in range(n_local_trials):
-                new_dist_sq = np.minimum(closest_dist_sq,
-                                         distance_to_candidates[trial])
-                new_pot = new_dist_sq.sum()
-
-                if (best_candidate is None) or (new_pot < best_pot):
-                    best_candidate = candidate_ids[trial]
-                    best_pot = new_pot
-                    best_dist_sq = new_dist_sq
-
-            centers[c] = X[best_candidate]
-            current_pot = best_pot
-            closest_dist_sq = best_dist_sq
-
-        if DEBUG >= 2:
-            logger.info('Initialization kmeans++ finished')
+        """ Initialize choosing randomly samples as centers """
+        n_samples = X.shape[0]
+        idx = np.random.permutation(n_samples)[:self.n_clusters]
+        centers = X[idx,:]
         return centers
 
     def fit(self, X, w):
@@ -192,14 +166,17 @@ class KMeansCoresets(object):
                 for j in range(n_samples):
                     d_2 = np.sum((centers-X[j,:])**2, axis=1)
                     labels[j] = np.argmin(d_2)
-                    L += w[i,0] * np.min(d_2)
-                L /= np.sum(w)
+                    L += w[i,0] * d_2[labels[j]]
+                L /= w.sum()
 
                 # Update
                 for l in range(self.n_clusters):
+                    if np.sum(labels==l) == 0:
+                        logger.info('No labels of {}'.format(l))
+                        continue
                     P = X[labels==l,:]
                     pw = w[labels==l,:]
-                    centers[l] = np.sum(pw * P, axis=0) / np.sum(pw)
+                    centers[l] = np.sum(pw * P, axis=0) / pw.sum()
 
                 # Check convergence
                 if abs(prev_L - L) < self.tol:
@@ -238,18 +215,17 @@ def mapper(key, value):
     indexes = np.arange(nb_samples)
     p = np.ones((nb_samples))
     p /= p.sum()
-    c = np.zeros((K, dimensions)) # Store the centers of the coresets
-    d = np.zeros((nb_samples, K))
-    for i in range(K):
+    c = np.zeros((N_CORESETS, dimensions)) # Store the centers of the coresets
+    d = np.zeros((nb_samples, N_CORESETS))
+    for i in range(N_CORESETS):
         idx = np.random.choice(indexes, p=p)
         c[i] = X[idx]
 
-        temp = euclidean_distance(X, c[i])
-        d[:,i] = temp
+        d[:,i] = euclidean_distance(X, c[i])
 
-        p = d[:,:i+1].sum(axis=1) / d[:,:i+1].sum()
+        p = d[:,:i+1].min(axis=1) / d[:,:i+1].min(axis=1).sum()
 
-    w = np.zeros((K, 1))
+    w = np.zeros((N_CORESETS, 1))
     for i in range(nb_samples):
         d = euclidean_distance(c, X[i])
         w[np.argmin(d), 0] += 1

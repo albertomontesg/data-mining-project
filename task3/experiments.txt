@@ -146,3 +146,339 @@ Number of initializations:	5
 Number of coresets:			400
 
 7.1826452214
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			400
+
+7.1826452214
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			400
+
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			200
+
+7.06250613814
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			200
+
+7.52699345894
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			300
+
+7.28432558229
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			400
+Notes:
+For sampling the Coresets centers, it has been computed the distance of each point to each of the
+known centers, take the distance to the closest center (min distance) and sample with probability
+proportional to this squared distance.
+
+
+7.1826452214
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			400
+Notes:
+For sampling the Coresets centers, it has been computed the distance of each point to each of the
+known centers, take the distance to the closest center (min distance) and sample with probability
+proportional to this squared distance.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points.
+
+
+Result:
+7.23432795268
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			200
+Notes:
+For sampling the Coresets centers, it has been computed the distance of each point to each of the
+known centers, take the distance to the closest center (min distance) and sample with probability
+proportional to this squared distance.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points.
+
+
+Result:
+7.62138602778
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			300
+Notes:
+For sampling the Coresets centers, it has been computed the distance of each point to each of the
+known centers, take the distance to the closest center (min distance) and sample with probability
+proportional to this squared distance.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points.
+
+
+Result:
+7.43650337443
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			200
+Notes:
+For sampling the Coresets centers, used the D^2 sampling criteria.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points.
+
+
+Result:
+7.62138602778
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	20
+Number of coresets:			200
+Notes:
+For sampling the Coresets centers, used the D^2 sampling criteria.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points.
+
+
+Result:
+7.62138602778
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			200
+Notes:
+For sampling the Coresets centers, used the D^2 sampling criteria.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points. Now it is done again as the initialization of the
+centers do not take into account the weights, so better to randomly sample the centers.
+
+
+Result:
+7.52699345894
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			200
+Notes:
+For sampling the Coresets centers, used the D^2 sampling criteria.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points. Now it is done again as the initialization of the
+centers do not take into account the weights, so better to randomly sample the centers using a
+sample weight proportional to coresets weight.
+
+
+Result:
+7.57894376228
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			200
+Notes: 
+For sampling the Coresets centers, used the D^2 sampling criteria.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points. Now it is done again as the initialization of the
+centers do not take into account the weights, so better to randomly sample the centers using a
+sample weight proportional to coresets weight.
+
+
+Result:
+7.57894376228
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			200
+Notes: 
+For sampling the Coresets centers, used the D^2 sampling criteria.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points. Now it is done again as the initialization of the
+centers do not take into account the weights, so better to randomly sample the centers using a
+sample weight proportional to coresets weight.
+
+
+Result:
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			200
+Notes: 
+For sampling the Coresets centers, used the D^2 sampling criteria.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points. Now it is done again as the initialization of the
+centers do not take into account the weights, so better to randomly sample the centers using a
+sample weight proportional to coresets weight.
+
+
+Result:
+7.52699345894
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	20
+Number of coresets:			400
+Notes: 
+For sampling the Coresets centers, used the D^2 sampling criteria.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points. Now it is done again as the initialization of the
+centers do not take into account the weights, so better to randomly sample the centers using a
+sample weight proportional to coresets weight.
+
+
+Result:
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	20
+Number of coresets:			400
+Notes: 
+For sampling the Coresets centers, used the D^2 sampling criteria.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points. Now it is done again as the initialization of the
+centers do not take into account the weights, so better to randomly sample the centers using a
+sample weight proportional to coresets weight.
+
+
+Result:
+7.1826452214
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			400
+Notes: 
+For sampling the Coresets centers, used the D^2 sampling criteria.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points. Now it is done again as the initialization of the
+centers do not take into account the weights, so better to randomly sample the centers using a
+sample weight proportional to coresets weight.
+
+
+Result:
+7.24100995735
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			400
+Notes: 
+For sampling the Coresets centers, used the D^2 sampling criteria.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points. Now it is done again as the initialization of the
+centers do not take into account the weights, so better to randomly sample the centers using a
+sample weight proportional to coresets weight.
+
+
+Result:
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			500
+Notes: 
+For sampling the Coresets centers, used the D^2 sampling criteria.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points. Now it is done again as the initialization of the
+centers do not take into account the weights, so better to randomly sample the centers using a
+sample weight proportional to coresets weight.
+
+
+Result:
+7.09380442321
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			600
+Notes: 
+For sampling the Coresets centers, used the D^2 sampling criteria.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points. Now it is done again as the initialization of the
+centers do not take into account the weights, so better to randomly sample the centers using a
+sample weight proportional to coresets weight.
+
+
+Result:
+7.04134360651
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			1000
+Notes: 
+For sampling the Coresets centers, used the D^2 sampling criteria.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points. Now it is done again as the initialization of the
+centers do not take into account the weights, so better to randomly sample the centers using a
+sample weight proportional to coresets weight.
+
+Increassing the number of coresets bigger than 400 it is obtained better results than the hard
+baseline
+
+
+Result:
+6.90919878945

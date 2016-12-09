@@ -7,12 +7,25 @@ logger = logging.getLogger(__name__)
 DEBUG = 2
 N_CLUSTERS = 200
 N_INIT = 10
-N_CORESETS = 400
+N_CORESETS = 1000
+NOTES = """
+For sampling the Coresets centers, used the D^2 sampling criteria.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points. Now it is done again as the initialization of the
+centers do not take into account the weights, so better to randomly sample the centers using a
+sample weight proportional to coresets weight.
+
+Increassing the number of coresets bigger than 400 it is obtained better results than the hard
+baseline
+"""
 
 print('\n' + '#'*40 + '\n')
 print('Number of clusters:\t\t\t{}'.format(N_CLUSTERS))
 print('Number of initializations:\t{}'.format(N_INIT))
-print('Number of coresets:\t\t\t{}\n'.format(N_CORESETS))
+print('Number of coresets:\t\t\t{}'.format(N_CORESETS))
+print('Notes: {}'.format(NOTES))
+print('\nResult:')
 
 np.random.seed(23)
 
@@ -27,103 +40,88 @@ def euclidean_distance(X, Y):
         result[i,:] = euclidean_distance(Y, X[i,:])
     return result
 
-class KMeans(object):
+def d_2_sampling(X, n_clusters):
+    """ D^2 sampling algorithm to find a proper cluster centers given a dataset of points """
+    # Extract some values
+    N, d = X.shape
 
-    def __init__(self, n_clusters=8, n_init=10, max_iter=300, tol=.0001):
-        self.n_clusters = n_clusters
-        self.n_init = n_init
-        self.max_iter = max_iter
-        self.tol = tol
+    # Centers container
+    centers = np.empty((n_clusters, d), dtype=X.dtype)
+    # Squared distance of each point to its closest center
+    dist = np.empty((N, n_clusters), dtype='float')
 
-    def _kmeans_pp_init(self, X):
-        # Centers container
-        centers = np.zeros((self.n_clusters, X.shape[-1]))
-        # Choose the first center
-        centers[0,:] = X[np.random.randint(X.shape[0]),:]
+    indexes = np.arange(N)
+    p = np.ones((N))
+    p /= p.sum()
 
-        n_local_trials = 2*int(np.log(self.n_clusters))
+    for i in range(n_clusters):
+        # Sample following the given probability distribution
+        idx = np.random.choice(indexes, p=p)
+        # And store the sampled point into the centers container
+        centers[i] = X[idx]
 
-        closest_dist_sq = np.sum((X-centers[0])**2, axis=1)
-        current_pot = closest_dist_sq.sum()
+        # Squared distance of each point to its closest center
+        dist[:,i] = euclidean_distance(X, centers[i])
+        min_dist = dist[:,:i+1].min(axis=1) # Distance to closest center
 
-        for c in range(self.n_clusters - 1):
-            rand_vals = np.random.random_sample(n_local_trials) * current_pot
-            candidate_ids = np.searchsorted(closest_dist_sq.cumsum(), rand_vals)
+        # Compute the probability distribution normalizing the squared distance
+        p = min_dist / min_dist.sum()
 
-            distance_to_candidates = euclidean_distance(X[candidate_ids], X)
-            best_candidate = None
-            best_pot = None
-            best_dist_sq = None
-            for trial in range(n_local_trials):
-                new_dist_sq = np.minimum(closest_dist_sq,
-                                         distance_to_candidates[trial])
-                new_pot = new_dist_sq.sum()
+        if DEBUG > 2:
+            logger.info('Sampled center {}'.format(i))
 
-                if (best_candidate is None) or (new_pot < best_pot):
-                    best_candidate = candidate_ids[trial]
-                    best_pot = new_pot
-                    best_dist_sq = new_dist_sq
+    if DEBUG > 1:
+        logger.info('Finish kmeans++ initialization')
 
-            centers[c] = X[best_candidate]
-            current_pot = best_pot
-            closest_dist_sq = best_dist_sq
+    return centers
 
-        if DEBUG >= 2:
-            logger.info('Initialization kmeans++ finished')
-        return centers
+def importance_sampling(X, n_centers):
+    """ Implementation of the importance sampling """
+    # Extract some values
+    N, d = X.shape
 
-    def fit(self, X):
+    # Centers container
+    centers = np.empty((n_centers, d), dtype=X.dtype)
+    # Squared distance of each point to its closest center
+    dist = np.empty((N, n_centers), dtype='float')
 
-        best_centers, best_inertia, best_labels = None, None, None
+    alpha = 1 + np.log2(n_centers)
 
-        n_samples = X.shape[0]
+    # Initial sampling distribution (uniformly)
+    indexes = np.arange(N)
+    q = np.ones(N) * 1 / N
 
+    for i in range(n_centers):
+        # Sample following the given probability distribution
+        idx = np.random.choice(indexes, p=q)
+        # And store the sampled point into the centers container
+        centers[i] = X[idx]
 
-        for i in range(self.n_init):
+        # Squared distance of each point to its closest center
+        dist[:,i] = euclidean_distance(X, centers[i])
+        min_dist = dist[:,:i+1].min(axis=1) # Distance to closest center
 
-            # Initialize the centers choosing randomly n_clusters points
-            # centers = X[np.random.permutation(X.shape[0])[:self.n_clusters],:]
-            centers = self._kmeans_pp_init(X)
+        c_phi = min_dist.mean()
+        q = alpha * min_dist / c_phi
 
-            it = 0
-            prev_L = 0
-            while it < self.max_iter:
+        min_i = np.argmin(dist[:,:i+1], axis=1)
 
-                L = 0
-                # Assign to each point the index of the closest center
-                labels = np.zeros(n_samples, dtype='int')
-                for j in range(n_samples):
-                    d_2 = np.sum((centers-X[j,:])**2, axis=1)
-                    labels[j] = np.argmin(d_2)
-                    L += np.min(d_2)
-                L /= n_samples
+        for j in range(N):
+            idx_B = min_i == min_i[j]
+            q[j] += 2 * alpha * min_dist[idx_B].sum() / (idx_B.sum() * c_phi)
 
-                # Update
-                for l in range(self.n_clusters):
-                    P = X[labels==l,:]
-                    centers[l] = np.mean(P, axis=0)
+            q[j] += 4 * N / idx_B.sum()
 
-                # Check convergence
-                if abs(prev_L - L) < self.tol:
-                    break
-                prev_L = L
+        # Normalize sample weights
+        q /= q.sum()
 
-                if DEBUG >= 2:
-                    logger.info('Iteration {}\tInertia: {:.5f}'.format(it, L))
-                it += 1
+        if DEBUG > 2:
+            logger.info('Sampled center {}'.format(i))
 
-            if it == self.max_iter:
-                logger.warning('Maximum iteration reached')
-            elif DEBUG >= 1:
-                logger.info('Finished initialization {} with {} iterations and intertia {:.5f}'.format(i, it, L))
-            # Compute intertia and update the best parameters
-            inertia = L
-            if best_inertia is None or inertia < best_inertia:
-                best_inertia = inertia
-                best_centers = centers
-                best_labels = labels
+    if DEBUG > 1:
+        logger.info('Finish importance sampling')
 
-        self.cluster_centers_ = best_centers
+    return centers
 
 class KMeansCoresets(object):
 
@@ -133,9 +131,10 @@ class KMeansCoresets(object):
         self.max_iter = max_iter
         self.tol = tol
 
-    def _kmeans_pp_init(self, X):
+    def init_centers(self, X):
         """ Initialize choosing randomly samples as centers """
         n_samples = X.shape[0]
+
         idx = np.random.permutation(n_samples)[:self.n_clusters]
         centers = X[idx,:]
         return centers
@@ -154,7 +153,7 @@ class KMeansCoresets(object):
         for i in range(self.n_init):
 
             # Initialize the centers using the k-means++ algorithm
-            centers = self._kmeans_pp_init(X)
+            centers = self.init_centers(X)
 
             it = 0
             prev_L = 0
@@ -172,7 +171,7 @@ class KMeansCoresets(object):
                 # Update
                 for l in range(self.n_clusters):
                     if np.sum(labels==l) == 0:
-                        logger.info('No labels of {}'.format(l))
+                        logger.warning('No labels of {}'.format(l))
                         continue
                     P = X[labels==l,:]
                     pw = w[labels==l,:]
@@ -209,21 +208,10 @@ def mapper(key, value):
     # To compute the coreset first uniformly sample over all the points.
     # Then compute the weight of each sample as the number of samples closer to each one
     X = value
-    nb_samples, dimensions = X.shape[0], X.shape[1]
+    nb_samples = X.shape[0]
 
     # Sample points for coresets
-    indexes = np.arange(nb_samples)
-    p = np.ones((nb_samples))
-    p /= p.sum()
-    c = np.zeros((N_CORESETS, dimensions)) # Store the centers of the coresets
-    d = np.zeros((nb_samples, N_CORESETS))
-    for i in range(N_CORESETS):
-        idx = np.random.choice(indexes, p=p)
-        c[i] = X[idx]
-
-        d[:,i] = euclidean_distance(X, c[i])
-
-        p = d[:,:i+1].min(axis=1) / d[:,:i+1].min(axis=1).sum()
+    c = d_2_sampling(X, N_CORESETS)
 
     w = np.zeros((N_CORESETS, 1))
     for i in range(nb_samples):

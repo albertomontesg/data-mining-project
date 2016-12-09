@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 DEBUG = 2
 N_CLUSTERS = 200
 N_INIT = 10
-N_CORESETS = 1000
+N_CORESETS = 500
 NOTES = """
 For sampling the Coresets centers, used the D^2 sampling criteria.
 

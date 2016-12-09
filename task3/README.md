@@ -28,3 +28,13 @@ We will compare the score of your submission to two baseline solutions: A weak o
 Your grade on this task depends on the solution and the description that you hand in. As a rough (non-binding) guidance, if you hand in a properly-written description and your handed-in submission performs better than the easy baseline, you will obtain a grade exceeding a 4. If in addition your submission performs better than the hard baseline, you obtain a 6.
 
 For this task, each submission will be evaluated on two datasets: a public data set for which you will see the score in the leaderboard and a private data set for which the score is kept private until hand in. Both the public and the private score of the handed in submission are used in the final grading.
+
+## Description of the solution
+
+The proposed solution solves the Large-Scale Clustering task using parallel clustering in a MapReduce implementation.
+
+The main approach is to first, at each Map operation, find a proper representation of the given data using Coresets. Then at the reducer, given all the Coresets of all the mappers, perform the K-Means algorithm to find the center for the 200 clusters, as specified on the statement.
+
+The Coresets computations are obtained performing the D^2 sampling which weight the probability of each point to be sampled proportional to the distance to its closest center sampled so far. This sampling method helps to obtained a well distributed samples along all the space. Once the Coresets centers are obtained, for each one has been assigned a weight equivalent to the number of points which the Coreset is the closest. The number of Coresets returned by the Mapper used in the final implementation is ###############
+
+The K-Means algorithm which is computed over the Coresets returned by the Mappers first, initialize the centers uniforming sampling along the points of the Coresets. Then the k-means algorithm iterates, computing the distances of each point taking into account the weight of each point of the Coreset. In the final implementation, 10 initializations are perform and the best one returned.

@@ -482,3 +482,42 @@ baseline
 
 Result:
 6.90919878945
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			500
+Notes: 
+For sampling the Coresets centers, used the D^2 sampling criteria.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points. Now it is done again as the initialization of the
+centers do not take into account the weights, so better to randomly sample the centers using a
+sample weight proportional to coresets weight.
+
+Increassing the number of coresets bigger than 400 it is obtained better results than the hard
+baseline
+
+
+Result:
+
+########################################
+
+Number of clusters:			200
+Number of initializations:	10
+Number of coresets:			500
+Notes: 
+For sampling the Coresets centers, used the D^2 sampling criteria.
+
+(At the previous experiments): The initialization of the kmeans operation at the reducer was using
+uniformly sampling between all the points. Now it is done again as the initialization of the
+centers do not take into account the weights, so better to randomly sample the centers using a
+sample weight proportional to coresets weight.
+
+Increassing the number of coresets bigger than 400 it is obtained better results than the hard
+baseline
+
+
+Result:
+7.09380442321

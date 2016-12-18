@@ -78,7 +78,7 @@ def run(source, log_file, articles_file):
     articles = {}
     for art in articles_np:
         articles[int(art[0])] = [float(x) for x in art[1:]]
-        policy.set_articles(articles)
+    policy.set_articles(articles)
     with io.open(log_file, 'rb', buffering=1024*1024*512) as inf:
         return evaluate(policy, inf)
     

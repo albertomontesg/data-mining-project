@@ -8,8 +8,6 @@ logger = logging.getLogger(__name__)
 np.random.seed(23)
 
 method = 'UCB1'
-delta = .1
-alpha = 1 + np.sqrt(np.log(2/delta)/2)
 DEBUG = 1
 
 class UCB1(object):
@@ -18,9 +16,11 @@ class UCB1(object):
     index_article = dict()
     mu = None
     n = None
-    k = 0
-    num_articles = None
-    recommended_article = None
+    t = 0
+
+    r_article_idx = None
+    r_article = None
+    K = None
 
     @classmethod
     def set_articles(self, articles):
@@ -36,29 +36,34 @@ class UCB1(object):
         self.index_article = {i: articles_keys[i] for i in range(num_articles)}
         self.mu = np.zeros((num_articles,))
         self.n = np.zeros((num_articles,))
-        self.num_articles = num_articles
-
-
+        self.K = num_articles
 
     @classmethod
     def recommend(self, time, user_features, choices):
         """ Recommend the next article given the possible choices """
-        if self.k < self.num_articles:
-            recommendation = self.index_map.keys()[self.k]
-            self.recommended_article = self.k
-            self.k += 1
-            return recommendation
 
-        UCB_i = self.mu + np.sqrt(2 * np.log(time) / self.n)
-        indx = np.argmax(UCB_i)
-        return self.index_article[indx]
+        idx = [self.index_map[c] for c in choices]
+        n = self.n[idx]
+        mu = self.mu[idx]
 
+        if np.sum(n==0) > 0:
+            r_article = choices[np.argmin(n)]
+        else:
+            self.t += 1
+            UCB = mu + np.sqrt(2 * np.log(self.t) / n)
+            r_article = choices[np.argmax(UCB)]
+
+
+        self.r_article = r_article
+        self.r_article_idx = self.index_map[r_article]
+        return r_article
 
     @classmethod
     def update(self, reward):
         """ Update the parameters given the reward """
-        self.n[self.recommended_article] += 1
-        self.mu[self.recommended_article] += 1/self.n[self.recommended_article]* (reward-self.mu[self.recommended_article])
+        reward += 1
+        self.n[self.r_article_idx] += 1
+        self.mu[self.r_article_idx] += 1/self.n[self.r_article_idx]* (reward-self.mu[self.r_article_idx])
 
 
 

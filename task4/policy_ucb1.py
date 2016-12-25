@@ -8,19 +8,16 @@ logger = logging.getLogger(__name__)
 np.random.seed(23)
 
 method = 'UCB1'
+CHOICES = 20
 DEBUG = 1
 
 class UCB1(object):
     # Define variables
-    index_map = dict()
-    index_article = dict()
     mu = None
     n = None
     t = 0
 
-    r_article_idx = None
-    r_article = None
-    K = None
+    r_index = None
 
     @classmethod
     def set_articles(self, articles):
@@ -31,39 +28,38 @@ class UCB1(object):
             logger.info('Number of articles: {}'.format(num_articles))
             logger.info('Number of features: {}'.format(num_features))
 
-        articles_keys = articles.keys()
-        self.index_map = {articles_keys[i]: i for i in range(num_articles)}
-        self.index_article = {i: articles_keys[i] for i in range(num_articles)}
-        self.mu = np.zeros((num_articles,))
-        self.n = np.zeros((num_articles,))
-        self.K = num_articles
+        self.mu = np.zeros((CHOICES,))
+        self.n = np.zeros((CHOICES,))
 
     @classmethod
     def recommend(self, time, user_features, choices):
         """ Recommend the next article given the possible choices """
+        n = self.n
+        mu = self.mu
+        self.t += 1
 
-        idx = [self.index_map[c] for c in choices]
-        n = self.n[idx]
-        mu = self.mu[idx]
-
-        if np.sum(n==0) > 0:
-            r_article = choices[np.argmin(n)]
+        # Try all choices once
+        if self.t <= CHOICES:
+            self.r_index = self.t - 1
         else:
-            self.t += 1
             UCB = mu + np.sqrt(2 * np.log(self.t) / n)
-            r_article = choices[np.argmax(UCB)]
-
-
-        self.r_article = r_article
-        self.r_article_idx = self.index_map[r_article]
-        return r_article
+            self.r_index = np.argmax(UCB)
+        if self.r_index >= len(choices):
+            indx = range(len(choices))
+            self.r_index = np.random.choice(indx)
+        return choices[self.r_index]
 
     @classmethod
     def update(self, reward):
         """ Update the parameters given the reward """
-        reward += 1
-        self.n[self.r_article_idx] += 1
-        self.mu[self.r_article_idx] += 1/self.n[self.r_article_idx]* (reward-self.mu[self.r_article_idx])
+        if reward == -1:
+            # If the line does not match with the policy do not take into account
+            self.t -= 1
+            return
+
+        j = self.r_index
+        self.n[j] += 1
+        self.mu[j] += 1 / self.n[j] * (reward - self.mu[j])
 
 
 

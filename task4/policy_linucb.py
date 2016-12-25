@@ -8,9 +8,12 @@ logger = logging.getLogger(__name__)
 np.random.seed(23)
 
 method = 'LinUCB'
-DELTA = .2
-ALPHA = 1+np.sqrt(np.log(2/DELTA)/2)
+DELTA = .9
+# ALPHA = 1 + np.sqrt(np.log(2 / DELTA) / 2)
+ALPHA = .2
 DEBUG = 1
+
+logger.info('alpha: {}'.format(ALPHA))
 
 class LinUCB(object):
     # Define variables
@@ -59,7 +62,6 @@ class LinUCB(object):
     @classmethod
     def update(self, reward):
         """ Update the parameters given the reward """
-        # reward = reward + 1
         if reward == -1:
             return
         z_t = self.z_t.reshape(-1, 1)

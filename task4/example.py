@@ -1,5 +1,7 @@
 import numpy as np
 
+np.random.seed(23)
+
 def set_articles(articles):
     pass
 

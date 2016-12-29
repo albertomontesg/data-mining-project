@@ -33,3 +33,13 @@ An iteration is evaluated only if you have chosen the same article as the one ch
 We will compare the score of your submission to two baseline solutions: A weak one (called **baseline easy**) and a strong one (**baseline hard**). These will have the **quantization error** of FBE and FBH respectively, calculated as described above. Both baselines will appear in the rankings together with the score of your solutions.
 
 Your grade on this task depends on the solution and the description that you hand in. As a rough (non-binding) guidance, if you hand in a properly-written description and your handed-in submission performs better than the easy baseline, you will obtain a grade exceeding a 4. If in addition your submission performs better than the hard baseline, you obtain a 6.
+
+## Description of the solution
+
+The proposed solution solves the Large-Scale Bandit Optimization task using a recommendation system.
+
+The main approach is implementing the LinUCB algorithm which uses contextual bandits to recommend an article from a subset given and an user features. The parameters at the implementation for this specific purpose are the following. The confidence bounds (alpha) is set to 2.5. Also the reward is set to 0.5 when the recommended article is the same as the policy at the data and also -15 when is not. It has been also optimized the implementation precomputing some matrix inversion to be able to run the code faster.
+
+It has been tried also the USB1 algorithm, but this implementation, as does not use contextual information, improved a little the result respecting the uniformly random selection, but not enough to pass the baseline.
+
+With the final setup it has been achieved a good score over the baseline, after testing different combinations of values for the upper bound confidence and also the reward values.

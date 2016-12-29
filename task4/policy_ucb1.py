@@ -12,14 +12,19 @@ CHOICES = 20
 DEBUG = 1
 
 class UCB1(object):
-    # Define variables
-    mu = None
-    n = None
-    t = 0
 
-    r_index = None
+    def __init__(self):
+        # Define variables
+        self.mu = None
+        self.n = None
+        self.t = 0
 
-    @classmethod
+        r0 = -15
+        r1 = .5
+        self.r = (r0, r1)
+
+        self.r_index = None
+
     def set_articles(self, articles):
         """ Initialize all the variables for the articles features given """
         num_articles = len(articles)
@@ -31,7 +36,6 @@ class UCB1(object):
         self.mu = np.zeros((CHOICES,))
         self.n = np.zeros((CHOICES,))
 
-    @classmethod
     def recommend(self, time, user_features, choices):
         """ Recommend the next article given the possible choices """
         n = self.n
@@ -43,13 +47,10 @@ class UCB1(object):
             self.r_index = self.t - 1
         else:
             UCB = mu + np.sqrt(2 * np.log(self.t) / n)
-            self.r_index = np.argmax(UCB)
-        if self.r_index >= len(choices):
-            indx = range(len(choices))
-            self.r_index = np.random.choice(indx)
+            self.r_index = np.argmax(UCB) % len(choices)
+
         return choices[self.r_index]
 
-    @classmethod
     def update(self, reward):
         """ Update the parameters given the reward """
         if reward == -1:
@@ -57,14 +58,15 @@ class UCB1(object):
             self.t -= 1
             return
 
+        r = self.r[reward]
         j = self.r_index
         self.n[j] += 1
-        self.mu[j] += 1 / self.n[j] * (reward - self.mu[j])
+        self.mu[j] += 1 / self.n[j] * (r - self.mu[j])
 
 
 
 algorithms = {
-    'UCB1': UCB1
+    'UCB1': UCB1()
 }
 
 algorithm = algorithms[method]
